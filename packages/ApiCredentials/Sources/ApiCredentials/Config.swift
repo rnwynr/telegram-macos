@@ -17,9 +17,15 @@ public final class ApiEnvironment {
     
     
     
+    private static var sharedContainerURL: URL? {
+        if prefix == "debug" {
+            return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("Telegram-Dev")
+        }
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: ApiEnvironment.group)
+    }
+    
     public static var containerURL: URL? {
-        let appGroupName = ApiEnvironment.group
-        let containerUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)?.appendingPathComponent(prefix)
+        let containerUrl = sharedContainerURL?.appendingPathComponent(prefix)
         if let containerUrl = containerUrl {
             try? FileManager.default.createDirectory(at: containerUrl, withIntermediateDirectories: true, attributes: nil)
             return containerUrl
@@ -44,9 +50,7 @@ public final class ApiEnvironment {
     }
     
     public static var legacyContainerURL: URL? {
-        let appGroupName = ApiEnvironment.group
-        let containerUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)
-        return containerUrl
+        return sharedContainerURL
     }
     
     public static var group: String {
